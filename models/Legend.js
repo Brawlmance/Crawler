@@ -6,7 +6,7 @@ const Legends = sequelize.define('legend', {
     primaryKey: true,
     type: Sequelize.INTEGER.UNSIGNED
   },
-  legend_name: Sequelize.STRING,
+  legend_name_key: Sequelize.STRING,
   bio_name: Sequelize.STRING,
   weapon_one: Sequelize.STRING,
   weapon_two: Sequelize.STRING,
@@ -17,7 +17,7 @@ const Legends = sequelize.define('legend', {
 }, {
   indexes: [
     {
-      fields: ['legend_name']
+      fields: ['legend_name_key']
     }
   ]
 })
