@@ -29,7 +29,7 @@ module.exports = () => {
         }
 
         const patchIdExists = await Patch.findOne({ where: { id: patchID } })
-        Patch.create({
+        await Patch.create({
           id: patchID,
           timestamp: article.date,
           changes: patchIdExists ? '0' : '1' // Got two timestamps for the same patch. Keep first one

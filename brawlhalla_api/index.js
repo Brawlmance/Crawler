@@ -1,28 +1,38 @@
 const https = require('https')
-const utf8decode = require('./utf8decode')
+const utf8decodeRecursive = require('./utf8decode')
 const config = require(process.env.PWD + '/config')
 
 const brawlhallaApiUrl = 'https://api.brawlhalla.com'
 const queriesPerSecond = 7 // 10 is the limit, but leaving space is a good idea
 
 const queue = []
-var pausedUntil = 0
+var pausedUntil = false
 
-setInterval(() => {
+setInterval(async () => {
   if (!queue.length) return false
-  if (pausedUntil > Date.now()) return false
+  var firstRequestAfterPause = false
+  if (pausedUntil !== false) {
+    if (pausedUntil > Date.now()) return false
+    firstRequestAfterPause = true
+    // Pause for another 5 seconds while this first request is done.
+    // If everything goes well this time, we will resume
+    pausedUntil = Date.now() + 5 * 1000
+  }
 
   const queueElm = queue.shift()
-  httpsget(`${brawlhallaApiUrl}/${queueElm.url}?api_key=${config.brawlhalla_API_key}`, async data => {
-    const response = utf8decode(JSON.parse(data))
-    if (response.error && response.error.code === 429) {
-      retry(queueElm, response.error)
-      return false
-    }
-    queueElm.resolve(response)
-  }, err => {
-    retry(queueElm, err)
-  })
+  var response
+  try {
+    response = utf8decodeRecursive(JSON.parse(await httpsget(`${brawlhallaApiUrl}/${queueElm.url}?api_key=${config.brawlhalla_API_key}`)))
+    if (response.error) throw response.error
+  } catch (error) {
+    retry(queueElm, error)
+    return false
+  }
+
+  // Everything worked. Allow requests again
+  if (firstRequestAfterPause) pausedUntil = false
+  // Resolve promise returned by the public get function
+  queueElm.resolve(response)
 }, 1000 / queriesPerSecond)
 
 setInterval(() => {
@@ -35,16 +45,18 @@ function retry (queueElm, error) {
   queue.unshift(queueElm)
 }
 
-function httpsget (url, callback, error) {
-  https.get(url, resp => {
-    let data = ''
-    resp.on('data', (chunk) => {
-      data += chunk
-    })
-    resp.on('end', async () => {
-      callback(data)
-    })
-  }).on('error', error)
+function httpsget (url) {
+  return new Promise((resolve, reject) => {
+    https.get(url, resp => {
+      let data = ''
+      resp.on('data', (chunk) => {
+        data += chunk
+      })
+      resp.on('end', async () => {
+        resolve(data)
+      })
+    }).on('error', reject)
+  })
 }
 
 function get (url) {
