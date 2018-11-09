@@ -17,9 +17,6 @@ async function cronFn (executionIntervalInSeconds) {
     return false
   }
 
-  ranking.forEach(rankingplayer => {
-    rankingplayer.apireq = brawlhallaApi.get(`player/${rankingplayer.brawlhalla_id}/stats`)
-  })
   await utils.forEachAndWaitForAsyncs(ranking, async rankingplayer => {
     await players.updatePlayer(rankingplayer)
   })

@@ -23,8 +23,8 @@ async function updatePlayerLegend (brawlhallaId, legend, tier) {
     PlayerLegend.create(legend)
     await addNewLegend(legend) // It might be a new legend
   } else {
-    updateLegendStats(brawlhallaId, legend, oldlegend, day, tier)
     oldlegend.update(legend)
+    updateLegendStats(brawlhallaId, legend, oldlegend, day, tier)
   }
 }
 
@@ -35,12 +35,12 @@ async function updateLegendStats (brawlhallaId, legend, oldlegend, day, tier) {
     'damageunarmed', 'damagethrownitem', 'damageweaponone', 'damageweapontwo', 'damagegadgets', 'kounarmed',
     'kothrownitem', 'koweaponone', 'koweapontwo', 'kogadgets', 'timeheldweaponone', 'timeheldweapontwo'
   ].forEach(key => {
-    diff[key] = legend[key] - oldlegend[key]
+    diff[key] = parseInt(legend[key]) - parseInt(oldlegend[key])
   })
 
   if (diff.games <= 0) return false
 
-  if (config.debug) console.debug(`statsToDB for legend ${legend.legend_id} from player ${brawlhallaId} (${diff.games} new games)`)
+  if (config.debug) console.debug(`updateLegendStats for legend ${legend.legend_id} from player ${brawlhallaId} (${legend.games} games, ${oldlegend.games} before)`)
   updateStatsTableWithDiff(diff, legend.legend_id, day, 'all')
   updateStatsTableWithDiff(diff, legend.legend_id, day, tier.replace(/(.*) (\d)/, '$1'))
 }
@@ -57,7 +57,7 @@ async function updateStatsTableWithDiff (diff, legendId, day, tier) {
     return false
   }
 
-  await Stat.increment(diff, { where: statsData })
+  await Stat.increment(diff, { where: statsData, logging: config.debug ? console.log : false })
 }
 
 async function addNewLegend (legend) {

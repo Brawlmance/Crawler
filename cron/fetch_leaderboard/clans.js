@@ -17,7 +17,7 @@ async function updatePlayerClan (player) {
     brawlhalla_id: player.brawlhalla_id,
     personal_xp: clan.personal_xp
   }
-  const member = await ClanMember.findOne({ where: { clan_id: memberData.clan_id } })
+  const member = await ClanMember.findOne({ where: { brawlhalla_id: player.brawlhalla_id } })
   if (member) {
     await member.update(memberData)
   } else {
