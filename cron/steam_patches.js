@@ -1,11 +1,6 @@
 const https = require('https')
 const Patch = require(process.env.PWD + '/models/Patch')
-
-async function forEachAndWaitForAsyncs (array, callback) {
-  for (let index = 0; index < array.length; index++) {
-    await callback(array[index], index, array)
-  }
-}
+const utils = require(process.env.PWD + '/utils')
 
 module.exports = () => {
   https.get('https://api.steampowered.com/ISteamNews/GetNewsForApp/v0002/?appid=291550&count=30&maxlength=300&format=json', resp => {
@@ -17,7 +12,7 @@ module.exports = () => {
       const steampatches = JSON.parse(data)
       if (!steampatches.appnews || !steampatches.appnews.newsitems) return false // Something went wrong. Maybe steam is down?
 
-      forEachAndWaitForAsyncs(steampatches.appnews.newsitems, async (article) => {
+      utils.forEachAndWaitForAsyncs(steampatches.appnews.newsitems, async (article) => {
         const isPatch = /(Patch|Update)/.test(article.title)
         if (!isPatch) return false // Not a patch, skip this article
 
@@ -42,6 +37,6 @@ module.exports = () => {
       })
     })
   }).on('error', (err) => {
-    console.log('Http request error: ' + err.message)
+    console.error('Http request error: ' + err.message)
   })
 }

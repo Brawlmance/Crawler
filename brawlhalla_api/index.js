@@ -3,7 +3,7 @@ const utf8decode = require('./utf8decode')
 const config = require(process.env.PWD + '/config')
 
 const brawlhallaApiUrl = 'https://api.brawlhalla.com'
-const queriesPerSecond = 9 // 10 is the limit
+const queriesPerSecond = 7 // 10 is the limit, but leaving space is a good idea
 
 const queue = []
 var pausedUntil = 0
@@ -26,11 +26,11 @@ setInterval(() => {
 }, 1000 / queriesPerSecond)
 
 setInterval(() => {
-  if (queue.length > 150) console.warn(`The brawlhalla API queue is too long: ${queue.length} items. Consider reducing queries_per_15_min in the config`)
+  if (queue.length > 250) console.warn(`The brawlhalla API queue is too long: ${queue.length} items. Consider reducing queries_per_15_min in the config`)
 }, 1000 * 30)
 
 function retry (queueElm, error) {
-  console.log(error)
+  console.log('Brawlhalla API error: ', error)
   pausedUntil = Date.now() + 5 * 1000 // Pause for 5 seconds
   queue.unshift(queueElm)
 }

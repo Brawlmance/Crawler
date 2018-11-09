@@ -5,7 +5,6 @@ const Stat = sequelize.define('stat', {
   legend_id: Sequelize.TINYINT.UNSIGNED,
   day: Sequelize.INTEGER.UNSIGNED,
   tier: Sequelize.STRING(50),
-  elo: Sequelize.BIGINT.UNSIGNED,
   damagedealt: Sequelize.BIGINT.UNSIGNED,
   damagetaken: Sequelize.BIGINT.UNSIGNED,
   kos: Sequelize.BIGINT.UNSIGNED,

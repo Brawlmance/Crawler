@@ -1,6 +1,7 @@
 {
   "brawlhalla_API_key": "",
   "queries_per_15_min": 150,
+  "debug": true,
   "db_host": "",
   "db_database": "",
   "db_username": "",

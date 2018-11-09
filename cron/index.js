@@ -13,5 +13,7 @@ module.exports = () => {
   const executionIntervalInSeconds = 1 / (executionsPerSecond * margin)
   setInterval(fetchLeaderboardPage, 1000 * executionIntervalInSeconds, executionIntervalInSeconds)
 
+  if (config.debug) fetchLeaderboardPage(executionIntervalInSeconds)
+
   console.log('Crawler started successfully')
 }
