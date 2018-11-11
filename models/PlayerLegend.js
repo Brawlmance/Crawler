@@ -48,6 +48,4 @@ const PlayerLegend = sequelize.define('player_legend', {
   ]
 })
 
-PlayerLegend.removeAttribute('id')
-
 module.exports = PlayerLegend

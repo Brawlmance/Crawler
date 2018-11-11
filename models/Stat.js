@@ -47,6 +47,4 @@ const Stat = sequelize.define('stat', {
   ]
 })
 
-Stat.removeAttribute('id')
-
 module.exports = Stat
