@@ -23,8 +23,8 @@ async function updatePlayerLegend (brawlhallaId, legend, tier) {
     PlayerLegend.create(legend)
     await addNewLegend(legend) // It might be a new legend
   } else {
-    oldlegend.update(legend)
     updateLegendStats(brawlhallaId, legend, oldlegend, day, tier)
+    oldlegend.update(legend)
   }
 }
 
@@ -57,7 +57,7 @@ async function updateStatsTableWithDiff (diff, legendId, day, tier) {
     return false
   }
 
-  await Stat.increment(diff, { where: statsData, logging: config.debug ? console.log : false })
+  await Stat.increment(diff, { where: statsData })
 }
 
 async function addNewLegend (legend) {
