@@ -2,9 +2,18 @@ const Sequelize = require('sequelize')
 const sequelize = require(process.env.PWD + '/database')
 
 const PlayerLegend = sequelize.define('player_legend', {
-  brawlhalla_id: Sequelize.INTEGER.UNSIGNED,
-  legend_id: Sequelize.TINYINT.UNSIGNED,
-  day: Sequelize.INTEGER.UNSIGNED,
+  brawlhalla_id: {
+    type: Sequelize.INTEGER.UNSIGNED,
+    primaryKey: true
+  },
+  legend_id: {
+    type: Sequelize.TINYINT.UNSIGNED,
+    primaryKey: true
+  },
+  day: {
+    type: Sequelize.INTEGER.UNSIGNED,
+    primaryKey: true
+  },
   damagedealt: Sequelize.BIGINT.UNSIGNED,
   damagetaken: Sequelize.BIGINT.UNSIGNED,
   kos: Sequelize.INTEGER.UNSIGNED,
@@ -30,10 +39,6 @@ const PlayerLegend = sequelize.define('player_legend', {
   level: Sequelize.SMALLINT.UNSIGNED
 }, {
   indexes: [
-    {
-      unique: true,
-      fields: ['brawlhalla_id', 'legend_id', 'day']
-    },
     {
       fields: ['day', 'legend_id']
     },

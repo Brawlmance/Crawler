@@ -8,14 +8,14 @@ function recursiveUtf8Decode (elm) {
       // UTF8 decoding error
     }
   }
-  if (Array.isArray(elm)) return elm.map(child => recursiveUtf8Decode(child))
+
   if (typeof elm === 'object') {
-    const newObj = {}
-    for (var key in elm) {
-      if (elm.hasOwnProperty(key)) newObj[key] = recursiveUtf8Decode(elm[key])
-    }
-    return newObj
+    Object.keys(elm).forEach(key => {
+      elm[key] = recursiveUtf8Decode(elm[key])
+    })
+    return elm
   }
+
   return elm
 }
 

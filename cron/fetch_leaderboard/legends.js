@@ -21,7 +21,7 @@ async function updatePlayerLegend (brawlhallaId, legend, tier) {
 
   if (!oldlegend) {
     PlayerLegend.create(legend)
-    await addNewLegend(legend) // It might be a new legend
+    await addNewLegend(legend.legend_id) // It might be a new legend
   } else {
     updateLegendStats(brawlhallaId, legend, oldlegend, day, tier)
     oldlegend.update(legend)
@@ -29,12 +29,13 @@ async function updatePlayerLegend (brawlhallaId, legend, tier) {
 }
 
 async function updateLegendStats (brawlhallaId, legend, oldlegend, day, tier) {
-  const diff = {};
-  [
+  const diff = {}
+  const statColumns = [
     'damagedealt', 'damagetaken', 'kos', 'falls', 'suicides', 'teamkos', 'matchtime', 'games', 'wins',
     'damageunarmed', 'damagethrownitem', 'damageweaponone', 'damageweapontwo', 'damagegadgets', 'kounarmed',
     'kothrownitem', 'koweaponone', 'koweapontwo', 'kogadgets', 'timeheldweaponone', 'timeheldweapontwo'
-  ].forEach(key => {
+  ]
+  statColumns.forEach(key => {
     diff[key] = parseInt(legend[key]) - parseInt(oldlegend[key])
   })
 
@@ -60,11 +61,11 @@ async function updateStatsTableWithDiff (diff, legendId, day, tier) {
   await Stat.increment(diff, { where: statsData })
 }
 
-async function addNewLegend (legend) {
-  const isindb = await Legend.count({ where: { legend_id: legend.legend_id } })
+async function addNewLegend (legendId) {
+  const isindb = await Legend.count({ where: { legend_id: legendId } })
   if (isindb > 0) return false
-  console.log(`Adding new legend ${legend.legend_id}`)
-  const newLegend = await brawlhallaApi.get(`legend/${legend.legend_id}`)
+  console.log(`Adding new legend ${legendId}`)
+  const newLegend = await brawlhallaApi.get(`legend/${legendId}`)
   if (!newLegend.legend_id) {
     console.error('Something went wrong while trying to get info from a new legend: ', newLegend)
     return false

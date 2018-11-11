@@ -16,21 +16,18 @@ async function updatePlayer (rankingplayer) {
 
   updatesPromises.push(updatePlayerModel(player, rankingplayer))
   updatesPromises.push(clans.updatePlayerClan(player))
-
-  player.legends.sort((a, b) => { return a.legend_id - b.legend_id })
-  const preparedLegends = player.legends.map(legend => {
-    return legends.updatePlayerLegend(player.brawlhalla_id, legend, rankingplayer.tier)
+  player.legends.forEach(legend => {
+    updatesPromises.push(legends.updatePlayerLegend(player.brawlhalla_id, legend, rankingplayer.tier))
   })
-  updatesPromises.push(...preparedLegends)
 
   await Promise.all(updatesPromises)
 }
 
 async function updatePlayerModel (player, rankingplayer) {
-  player.legends.sort((a, b) => { return b.xp - a.xp })
-  const legend1 = player.legends[0].legend_id
-  const legend2 = player.legends.length >= 2 ? player.legends[1].legend_id : 0
-  const legend3 = player.legends.length >= 3 ? player.legends[2].legend_id : 0
+  const sortedLegends = player.legends.slice().sort((a, b) => { return b.xp - a.xp })
+  const legend1 = sortedLegends[0].legend_id
+  const legend2 = sortedLegends.length >= 2 ? sortedLegends[1].legend_id : 0
+  const legend3 = sortedLegends.length >= 3 ? sortedLegends[2].legend_id : 0
   const values = {
     brawlhalla_id: rankingplayer.brawlhalla_id,
     name: rankingplayer.name,

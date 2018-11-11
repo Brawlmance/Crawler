@@ -2,9 +2,18 @@ const Sequelize = require('sequelize')
 const sequelize = require(process.env.PWD + '/database')
 
 const Stat = sequelize.define('stat', {
-  legend_id: Sequelize.TINYINT.UNSIGNED,
-  day: Sequelize.INTEGER.UNSIGNED,
-  tier: Sequelize.STRING(50),
+  legend_id: {
+    type: Sequelize.TINYINT.UNSIGNED,
+    primaryKey: true
+  },
+  day: {
+    type: Sequelize.INTEGER.UNSIGNED,
+    primaryKey: true
+  },
+  tier: {
+    type: Sequelize.STRING(50),
+    primaryKey: true
+  },
   damagedealt: Sequelize.BIGINT.UNSIGNED,
   damagetaken: Sequelize.BIGINT.UNSIGNED,
   kos: Sequelize.BIGINT.UNSIGNED,
