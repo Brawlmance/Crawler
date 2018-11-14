@@ -9,7 +9,7 @@ function recursiveUtf8Decode (elm) {
     }
   }
 
-  if (typeof elm === 'object') {
+  if (typeof elm === 'object' && elm !== null) {
     Object.keys(elm).forEach(key => {
       elm[key] = recursiveUtf8Decode(elm[key])
     })
