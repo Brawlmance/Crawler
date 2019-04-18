@@ -41,7 +41,7 @@ const PlayerLegend = sequelize.define('player_legend', {
   indexes: [
     {
       unique: true,
-      fields: ['brawlhalla_id', 'legend_id', 'day']
+      fields: ['brawlhalla_id', 'legend_id']
     },
     {
       fields: ['day', 'legend_id']

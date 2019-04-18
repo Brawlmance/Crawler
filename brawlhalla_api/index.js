@@ -23,10 +23,10 @@ setInterval(async () => {
   var response
   try {
     response = utf8decodeRecursive(JSON.parse(await httpsget(`${brawlhallaApiUrl}/${queueElm.url}?api_key=${config.brawlhalla_API_key}`)))
-    if (response.error) throw response.error
+    if (response.error) queueElm.reject(response.error)
   } catch (error) {
     retry(queueElm, error)
-    return false
+    return undefined
   }
 
   // Everything worked. Allow requests again
@@ -35,12 +35,11 @@ setInterval(async () => {
   queueElm.resolve(response)
 }, 1000 / queriesPerSecond)
 
-setInterval(() => {
-  if (queue.length > 250) console.warn(`The brawlhalla API queue is too long: ${queue.length} items. Consider reducing queries_per_15_min in the config`)
-}, 1000 * 30)
-
 function retry (queueElm, error) {
-  console.log('Brawlhalla API error: ', error)
+  if (++queueElm.tryN > 3) {
+    queueElm.reject(new Error('Brawlhalla API error: ' + error))
+    return false
+  }
   pausedUntil = Date.now() + 5 * 1000 // Pause for 5 seconds
   queue.unshift(queueElm)
 }
@@ -60,13 +59,28 @@ function httpsget (url) {
 }
 
 function get (url) {
-  const promise = new Promise((resolve) => {
-    queue.push({
+  let failTimeout
+  return new Promise((resolve, reject) => {
+    const queueElm = {
+      tryN: 1,
       url,
-      resolve
-    })
+      resolve,
+      reject
+    }
+    failTimeout = setTimeout(() => {
+      const elmN = queue.indexOf(queueElm)
+      if (elmN !== -1) queue.splice(elmN, 1)
+      else console.warn('[brawlhalla_api] This should never happen: elm was not in queue')
+      reject(new Error('Timeout: Brawlhalla API queue too long. Consider reducing queries_per_15_min in the config'))
+    }, 60000)
+    queue.push(queueElm)
+  }).then(a => {
+    clearTimeout(failTimeout)
+    return a
+  }).catch(err => {
+    clearTimeout(failTimeout)
+    throw err
   })
-  return promise
 }
 
 module.exports = {

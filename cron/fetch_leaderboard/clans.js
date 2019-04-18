@@ -1,8 +1,7 @@
 const Clan = require(process.env.PWD + '/models/Clan')
 const ClanMember = require(process.env.PWD + '/models/ClanMember')
 
-async function updatePlayerClan (player) {
-  const clan = player.clan
+async function updatePlayerClan (brawlhallaId, clan) {
   if (!clan) return false
 
   const clanFromDB = await Clan.findOne({ where: { clan_id: clan.clan_id } })
@@ -14,10 +13,10 @@ async function updatePlayerClan (player) {
 
   const memberData = {
     clan_id: clan.clan_id,
-    brawlhalla_id: player.brawlhalla_id,
+    brawlhalla_id: brawlhallaId,
     personal_xp: clan.personal_xp
   }
-  const member = await ClanMember.findOne({ where: { brawlhalla_id: player.brawlhalla_id } })
+  const member = await ClanMember.findOne({ where: { brawlhalla_id: brawlhallaId } })
   if (member) {
     await member.update(memberData)
   } else {
