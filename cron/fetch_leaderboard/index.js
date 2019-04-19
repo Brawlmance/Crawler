@@ -49,7 +49,7 @@ async function cronFn () {
 
   const msPerApiCall = 1000 * 60 * 15 / config.queries_per_15_min
   const margin = 0.9 // Reduce our theoretical max limit a bit, to avoid hitting rate limits
-  const msToWait = margin * msPerApiCall * apiCallsMade
+  const msToWait = (msPerApiCall / margin) * apiCallsMade
 
   const msElapsed = Date.now() - initialTs
   if (config.debug) console.log(`To Wait: ${msToWait / 1000}s / Elapsed: ${msElapsed / 1000}s`)
