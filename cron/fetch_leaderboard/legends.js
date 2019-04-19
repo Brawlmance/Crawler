@@ -1,4 +1,5 @@
 const PlayerLegend = require(process.env.PWD + '/models/PlayerLegend')
+const PlayerRankedLegend = require(process.env.PWD + '/models/PlayerRankedLegend')
 const Legend = require(process.env.PWD + '/models/Legend')
 const Stat = require(process.env.PWD + '/models/Stat')
 const brawlhallaApi = require(process.env.PWD + '/brawlhalla_api')
@@ -13,10 +14,7 @@ async function updatePlayerLegend (brawlhallaId, legendApiData, tier) {
   legendApiData.day = day
 
   const legendEntity = await PlayerLegend.findOne({
-    where: { brawlhalla_id: brawlhallaId, legend_id: legendApiData.legend_id },
-    order: [
-      ['day', 'DESC']
-    ]
+    where: { brawlhalla_id: brawlhallaId, legend_id: legendApiData.legend_id }
   })
 
   if (!legendEntity) {
@@ -81,6 +79,26 @@ async function addNewLegend (legendId) {
   seenLegends[legendId] = true
 }
 
+async function updatePlayerRankedLegend (brawlhallaId, legendApiData) {
+  if (!legendApiData.legend_id || legendApiData.legend_id === 17) return false // it doesn't actually exist
+  if (legendApiData.games === 0) return false // The player hasn't used this legend
+
+  const day = Math.floor(Date.now() / 1000 / 60 / 60 / 24)
+  legendApiData.brawlhalla_id = brawlhallaId
+  legendApiData.day = day
+
+  const legendEntity = await PlayerRankedLegend.findOne({
+    where: { brawlhalla_id: brawlhallaId, legend_id: legendApiData.legend_id }
+  })
+
+  if (!legendEntity) {
+    PlayerRankedLegend.create(legendApiData)
+  } else if (legendEntity.games !== legendApiData.games) {
+    legendEntity.update(legendApiData)
+  }
+}
+
 module.exports = {
-  updatePlayerLegend
+  updatePlayerLegend,
+  updatePlayerRankedLegend
 }

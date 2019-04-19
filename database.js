@@ -5,10 +5,10 @@ const sequelize = new Sequelize(config.db_database, config.db_username, config.d
   host: config.db_host,
   dialect: config.db_dialect,
   pool: {
-    max: 25,
+    max: 10,
     min: 0,
-    acquire: 30000,
-    idle: 10000
+    acquire: 20000,
+    idle: 5000
   },
   define: {
     charset: 'utf8mb4',

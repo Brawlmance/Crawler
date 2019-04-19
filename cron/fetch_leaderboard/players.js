@@ -10,12 +10,14 @@ async function updatePlayer (playerFromApiRanking) {
   if (playerEntity && playerEntity.games === playerFromApiRanking.games) {
     await updatePlayerWithNoNewGames(playerFromApiRanking, playerEntity)
     return {
-      apiCallMade: false
+      apiCallsMade: 0
     }
   } else {
+    if (config.debug) console.debug(`Updating player ${playerFromApiRanking.brawlhalla_id} data`)
     await updatePlayerFromAPI(playerFromApiRanking, playerEntity)
+    await updatePlayerRankedDataFromAPI(playerFromApiRanking)
     return {
-      apiCallMade: true
+      apiCallsMade: 2
     }
   }
 }
@@ -42,7 +44,6 @@ async function updatePlayerWithNoNewGames (playerFromApiRanking, playerEntity) {
 }
 
 async function updatePlayerFromAPI (playerFromApiRanking, playerEntity) {
-  if (config.debug) console.debug(`Updating player ${playerFromApiRanking.brawlhalla_id} data`)
   const playerApiData = await brawlhallaApi.get(`player/${playerFromApiRanking.brawlhalla_id}/stats`)
   if (!playerApiData.legends) {
     console.error(`Error updating player ${playerFromApiRanking.brawlhalla_id}: ${playerApiData}`)
@@ -52,8 +53,8 @@ async function updatePlayerFromAPI (playerFromApiRanking, playerEntity) {
   const updatesPromises = []
 
   // Update DB data
-  updatePlayerModel(playerApiData, playerFromApiRanking, playerEntity)
-  updatesPromises.push(clans.updatePlayerClan(playerFromApiRanking.brawlhalla_id, playerApiData.clan))
+  await updatePlayerModel(playerApiData, playerFromApiRanking, playerEntity)
+  clans.updatePlayerClan(playerFromApiRanking.brawlhalla_id, playerApiData.clan)
   playerApiData.legends.forEach(legendApiData => {
     updatesPromises.push(legends.updatePlayerLegend(playerApiData.brawlhalla_id, legendApiData, playerFromApiRanking.tier))
   })
@@ -84,6 +85,26 @@ async function updatePlayerFromAPI (playerFromApiRanking, playerEntity) {
     if (playerEntity) await playerEntity.update(values)
     else await Player.create(values)
   }
+}
+
+async function updatePlayerRankedDataFromAPI (playerFromApiRanking) {
+  const playerApiRankedData = await brawlhallaApi.get(`player/${playerFromApiRanking.brawlhalla_id}/ranked`)
+  if (!playerApiRankedData.legends || playerApiRankedData.error) return false
+
+  const updatesPromises = []
+
+  Player.update({
+    peak_rating: playerApiRankedData.peak_rating,
+    ranked_games: playerApiRankedData.games,
+    ranked_wins: playerApiRankedData.wins
+  }, {
+    where: { brawlhalla_id: playerFromApiRanking.brawlhalla_id }
+  })
+  playerApiRankedData.legends.forEach(legendApiData => {
+    updatesPromises.push(legends.updatePlayerRankedLegend(playerFromApiRanking.brawlhalla_id, legendApiData))
+  })
+
+  await Promise.all(updatesPromises)
 }
 
 module.exports = {
