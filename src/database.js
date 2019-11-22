@@ -1,4 +1,4 @@
-const config = require('./config')
+const config = require('../config')
 const Sequelize = require('sequelize')
 
 const sequelize = new Sequelize(config.db_database, config.db_username, config.db_password, {
@@ -8,17 +8,17 @@ const sequelize = new Sequelize(config.db_database, config.db_username, config.d
     max: 10,
     min: 0,
     acquire: 20000,
-    idle: 5000
+    idle: 5000,
   },
   define: {
     charset: 'utf8mb4',
     dialectOptions: {
-      collate: 'utf8_general_ci'
+      collate: 'utf8_general_ci',
     },
-    timestamps: false
+    timestamps: false,
   },
   logging: false, // console.debug
-  operatorsAliases: false // Sequelize option required for legacy reasons
+  operatorsAliases: false, // Sequelize option required for legacy reasons
 })
 
 module.exports = sequelize

@@ -1,5 +1,4 @@
-
-async function forEachAndWaitForAsyncs (array, callback) {
+async function forEachAndWaitForAsyncs(array, callback) {
   const results = []
   for (let index = 0; index < array.length; index++) {
     results.push(await callback(array[index], index, array))
@@ -8,5 +7,5 @@ async function forEachAndWaitForAsyncs (array, callback) {
 }
 
 module.exports = {
-  forEachAndWaitForAsyncs
+  forEachAndWaitForAsyncs,
 }

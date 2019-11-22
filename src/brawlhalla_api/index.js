@@ -1,6 +1,6 @@
 const https = require('https')
 const utf8decodeRecursive = require('./utf8decode')
-const config = require(process.env.PWD + '/config')
+const config = require('../../config')
 
 const brawlhallaApiUrl = 'https://api.brawlhalla.com'
 const queriesPerSecond = 7 // 10 is the limit, but leaving space is a good idea
@@ -22,7 +22,9 @@ setInterval(async () => {
   const queueElm = queue.shift()
   var response
   try {
-    response = utf8decodeRecursive(JSON.parse(await httpsget(`${brawlhallaApiUrl}/${queueElm.url}?api_key=${config.brawlhalla_API_key}`)))
+    response = utf8decodeRecursive(
+      JSON.parse(await httpsget(`${brawlhallaApiUrl}/${queueElm.url}?api_key=${config.brawlhalla_API_key}`))
+    )
     if (response.error) queueElm.reject(response.error)
   } catch (error) {
     retry(queueElm, error)
@@ -35,7 +37,7 @@ setInterval(async () => {
   queueElm.resolve(response)
 }, 1000 / queriesPerSecond)
 
-function retry (queueElm, error) {
+function retry(queueElm, error) {
   if (++queueElm.tryN > 3) {
     queueElm.reject(new Error('Brawlhalla API error: ' + error))
     return false
@@ -44,28 +46,30 @@ function retry (queueElm, error) {
   queue.unshift(queueElm)
 }
 
-function httpsget (url) {
+function httpsget(url) {
   return new Promise((resolve, reject) => {
-    https.get(url, resp => {
-      let data = ''
-      resp.on('data', (chunk) => {
-        data += chunk
+    https
+      .get(url, resp => {
+        let data = ''
+        resp.on('data', chunk => {
+          data += chunk
+        })
+        resp.on('end', async () => {
+          resolve(data)
+        })
       })
-      resp.on('end', async () => {
-        resolve(data)
-      })
-    }).on('error', reject)
+      .on('error', reject)
   })
 }
 
-function get (url) {
+function get(url) {
   let failTimeout
   return new Promise((resolve, reject) => {
     const queueElm = {
       tryN: 1,
       url,
       resolve,
-      reject
+      reject,
     }
     failTimeout = setTimeout(() => {
       const elmN = queue.indexOf(queueElm)
@@ -74,15 +78,17 @@ function get (url) {
       reject(new Error('Timeout: Brawlhalla API queue too long. Consider reducing queries_per_15_min in the config'))
     }, 60000)
     queue.push(queueElm)
-  }).then(a => {
-    clearTimeout(failTimeout)
-    return a
-  }).catch(err => {
-    clearTimeout(failTimeout)
-    throw err
   })
+    .then(a => {
+      clearTimeout(failTimeout)
+      return a
+    })
+    .catch(err => {
+      clearTimeout(failTimeout)
+      throw err
+    })
 }
 
 module.exports = {
-  get
+  get,
 }

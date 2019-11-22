@@ -1,6 +1,6 @@
 const utf8 = require('utf8')
 
-function recursiveUtf8Decode (elm) {
+function recursiveUtf8Decode(elm) {
   if (typeof elm === 'string') {
     try {
       return utf8.decode(elm)

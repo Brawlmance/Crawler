@@ -1,11 +1,11 @@
-const PlayerLegend = require(process.env.PWD + '/models/PlayerLegend')
-const PlayerRankedLegend = require(process.env.PWD + '/models/PlayerRankedLegend')
-const Legend = require(process.env.PWD + '/models/Legend')
-const Stat = require(process.env.PWD + '/models/Stat')
-const brawlhallaApi = require(process.env.PWD + '/brawlhalla_api')
-const config = require(process.env.PWD + '/config')
+const PlayerLegend = require('../../models/PlayerLegend')
+const PlayerRankedLegend = require('../../models/PlayerRankedLegend')
+const Legend = require('../../models/Legend')
+const Stat = require('../../models/Stat')
+const brawlhallaApi = require('../../brawlhalla_api')
+const config = require('../../../config')
 
-async function updatePlayerLegend (brawlhallaId, legendApiData, tier) {
+async function updatePlayerLegend(brawlhallaId, legendApiData, tier) {
   if (!legendApiData.legend_id || legendApiData.legend_id === 17) return false // it doesn't actually exist
   if (legendApiData.games === 0) return false // The player hasn't used this legend
 
@@ -14,7 +14,7 @@ async function updatePlayerLegend (brawlhallaId, legendApiData, tier) {
   legendApiData.day = day
 
   const legendEntity = await PlayerLegend.findOne({
-    where: { brawlhalla_id: brawlhallaId, legend_id: legendApiData.legend_id }
+    where: { brawlhalla_id: brawlhallaId, legend_id: legendApiData.legend_id },
   })
 
   if (!legendEntity) {
@@ -26,12 +26,30 @@ async function updatePlayerLegend (brawlhallaId, legendApiData, tier) {
   }
 }
 
-async function updateLegendStats (brawlhallaId, legendApiData, legendEntity, day, tier) {
+async function updateLegendStats(brawlhallaId, legendApiData, legendEntity, day, tier) {
   const diff = {}
   const statColumns = [
-    'damagedealt', 'damagetaken', 'kos', 'falls', 'suicides', 'teamkos', 'matchtime', 'games', 'wins',
-    'damageunarmed', 'damagethrownitem', 'damageweaponone', 'damageweapontwo', 'damagegadgets', 'kounarmed',
-    'kothrownitem', 'koweaponone', 'koweapontwo', 'kogadgets', 'timeheldweaponone', 'timeheldweapontwo'
+    'damagedealt',
+    'damagetaken',
+    'kos',
+    'falls',
+    'suicides',
+    'teamkos',
+    'matchtime',
+    'games',
+    'wins',
+    'damageunarmed',
+    'damagethrownitem',
+    'damageweaponone',
+    'damageweapontwo',
+    'damagegadgets',
+    'kounarmed',
+    'kothrownitem',
+    'koweaponone',
+    'koweapontwo',
+    'kogadgets',
+    'timeheldweaponone',
+    'timeheldweapontwo',
   ]
   statColumns.forEach(key => {
     diff[key] = parseInt(legendApiData[key]) - parseInt(legendEntity[key])
@@ -42,16 +60,20 @@ async function updateLegendStats (brawlhallaId, legendApiData, legendEntity, day
     return false
   }
 
-  if (config.debug) console.debug(`updateLegendStats for legend ${legendApiData.legend_id} from player ${brawlhallaId} (${legendApiData.games - legendEntity.games} new games)`)
+  if (config.debug)
+    console.debug(
+      `updateLegendStats for legend ${legendApiData.legend_id} from player ${brawlhallaId} (${legendApiData.games -
+        legendEntity.games} new games)`
+    )
   updateStatsTableWithDiff(diff, legendApiData.legend_id, day, 'all')
   updateStatsTableWithDiff(diff, legendApiData.legend_id, day, tier.replace(/(.*) (\d)/, '$1'))
 }
 
-async function updateStatsTableWithDiff (diff, legendId, day, tier) {
+async function updateStatsTableWithDiff(diff, legendId, day, tier) {
   const statsData = {
     legend_id: legendId,
     day: day,
-    tier: tier
+    tier: tier,
   }
   const statsfromdb = await Stat.findOne({ where: statsData })
   if (!statsfromdb) {
@@ -63,7 +85,7 @@ async function updateStatsTableWithDiff (diff, legendId, day, tier) {
 }
 
 const seenLegends = {}
-async function addNewLegend (legendId) {
+async function addNewLegend(legendId) {
   if (seenLegends[legendId]) return undefined // Cached: legend already seen
 
   const isindb = await Legend.count({ where: { legend_id: legendId } })
@@ -79,7 +101,7 @@ async function addNewLegend (legendId) {
   seenLegends[legendId] = true
 }
 
-async function updatePlayerRankedLegend (brawlhallaId, legendApiData) {
+async function updatePlayerRankedLegend(brawlhallaId, legendApiData) {
   if (!legendApiData.legend_id || legendApiData.legend_id === 17) return false // it doesn't actually exist
   if (legendApiData.games === 0) return false // The player hasn't used this legend
 
@@ -88,7 +110,7 @@ async function updatePlayerRankedLegend (brawlhallaId, legendApiData) {
   legendApiData.day = day
 
   const legendEntity = await PlayerRankedLegend.findOne({
-    where: { brawlhalla_id: brawlhallaId, legend_id: legendApiData.legend_id }
+    where: { brawlhalla_id: brawlhallaId, legend_id: legendApiData.legend_id },
   })
 
   if (!legendEntity) {
@@ -100,5 +122,5 @@ async function updatePlayerRankedLegend (brawlhallaId, legendApiData) {
 
 module.exports = {
   updatePlayerLegend,
-  updatePlayerRankedLegend
+  updatePlayerRankedLegend,
 }

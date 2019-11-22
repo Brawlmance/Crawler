@@ -1,10 +1,10 @@
-const RankingProgress = require(process.env.PWD + '/models/RankingProgress')
-const brawlhallaApi = require(process.env.PWD + '/brawlhalla_api')
-const config = require(process.env.PWD + '/config')
-const utils = require(process.env.PWD + '/utils')
+const RankingProgress = require('../../models/RankingProgress')
+const brawlhallaApi = require('../../brawlhalla_api')
+const config = require('../../../config')
+const utils = require('../../utils')
 const players = require('./players')
 
-async function cronFn () {
+async function cronFn() {
   const resetRankingPageSeconds = 60 * 60 * 12 // 12h
   const initialTs = Date.now()
 
@@ -18,7 +18,7 @@ async function cronFn () {
       rankingPos = RankingProgress.create({
         type: '1v1/all',
         first_page_crawl_ts: now,
-        page: 0
+        page: 0,
       })
     } else {
       page = rankingPos.page + 1
@@ -47,7 +47,7 @@ async function cronFn () {
     console.error(e)
   }
 
-  const msPerApiCall = 1000 * 60 * 15 / config.queries_per_15_min
+  const msPerApiCall = (1000 * 60 * 15) / config.queries_per_15_min
   const margin = 0.9 // Reduce our theoretical max limit a bit, to avoid hitting rate limits
   const msToWait = (msPerApiCall / margin) * apiCallsMade
 
