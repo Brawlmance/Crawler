@@ -18,11 +18,10 @@ const sequelize = new Sequelize(config.db_database, config.db_username, config.d
     timestamps: false,
   },
   logging: false, // console.debug
-  operatorsAliases: false, // Sequelize option required for legacy reasons
   retry: {
     match: [/.*/],
-    max: Infinity
-  }
+    max: Infinity,
+  },
 })
 
 module.exports = sequelize

@@ -59,18 +59,15 @@ async function updatePlayerFromAPI(playerFromApiRanking, playerEntity) {
     return false
   }
 
-  const updatesPromises = []
-
   // Update DB data
   await updatePlayerModel(playerApiData, playerFromApiRanking, playerEntity)
   clans.updatePlayerClan(playerFromApiRanking.brawlhalla_id, playerApiData.clan)
-  playerApiData.legends.forEach(legendApiData => {
-    updatesPromises.push(
+
+  await Promise.all(
+    playerApiData.legends.map(legendApiData =>
       legends.updatePlayerLegend(playerApiData.brawlhalla_id, legendApiData, playerFromApiRanking.tier)
     )
-  })
-
-  await Promise.all(updatesPromises)
+  )
 }
 
 async function updatePlayerModel(playerApiData, playerFromApiRanking, playerEntity) {

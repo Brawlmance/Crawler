@@ -17,8 +17,8 @@
   },
   "homepage": "https://github.com/Brawlmance/Crawler#readme",
   "dependencies": {
-    "mysql2": "^1.6.4",
-    "sequelize": "^4.41.1",
+    "mysql2": "^2.2.5",
+    "sequelize": "^6.5.0",
     "utf8": "^3.0.0"
   },
   "devDependencies": {
