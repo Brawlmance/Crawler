@@ -7,6 +7,7 @@ const players = require('./players')
 async function cronFn() {
   const resetRankingPageSeconds = 60 * 60 * 12 // 12h
   const initialTs = Date.now()
+  const MAX_RANKING_PAGE = 1000 // Brawlhalla API breaks after this page
 
   let apiCallsMade = 0
   try {
@@ -38,7 +39,10 @@ async function cronFn() {
     }
 
     // Update page position in db
-    if (now - rankingPos.first_page_crawl_ts > resetRankingPageSeconds) {
+    if (
+      now - rankingPos.first_page_crawl_ts > resetRankingPageSeconds ||
+      page >= MAX_RANKING_PAGE
+    ) {
       RankingProgress.update({ page: 0, first_page_crawl_ts: now }, { where: { type: '1v1/all' } })
     } else {
       RankingProgress.update({ page }, { where: { type: '1v1/all' } })
