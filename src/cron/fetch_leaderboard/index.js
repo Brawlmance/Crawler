@@ -7,7 +7,7 @@ const players = require('./players')
 async function cronFn() {
   const resetRankingPageSeconds = 60 * 60 * 12 // 12h
   const initialTs = Date.now()
-  const MAX_RANKING_PAGE = 500 // Brawlhalla API breaks after this page
+  const MAX_RANKING_PAGE = 1000 // Brawlhalla API breaks after this page
 
   let apiCallsMade = 0
   try {
