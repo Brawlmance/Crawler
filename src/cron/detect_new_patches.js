@@ -4,7 +4,7 @@ const utils = require('../utils')
 
 module.exports = () => {
   https
-    .get('https://www.brawlhalla.com/wp-json/wp/v2/posts?per_page=20', resp => {
+    .get('https://cms.brawlhalla.com/wp-json/wp/v2/posts?per_page=20', resp => {
       let data = ''
       resp.on('data', chunk => {
         data += chunk
