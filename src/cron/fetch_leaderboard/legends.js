@@ -6,7 +6,7 @@ const brawlhallaApi = require('../../brawlhalla_api')
 const config = require('../../../config')
 
 async function updatePlayerLegend(brawlhallaId, legendApiData, tier) {
-  if (!legendApiData.legend_id || legendApiData.legend_id === 17) return false // it doesn't actually exist
+  if (!legendApiData.legend_id) return false // it doesn't actually exist
   if (legendApiData.games === 0) return false // The player hasn't used this legend
 
   const day = Math.floor(Date.now() / 1000 / 60 / 60 / 24)
@@ -102,7 +102,7 @@ async function addNewLegend(legendId) {
 }
 
 async function updatePlayerRankedLegend(brawlhallaId, legendApiData) {
-  if (!legendApiData.legend_id || legendApiData.legend_id === 17) return false // it doesn't actually exist
+  if (!legendApiData.legend_id) return false // it doesn't actually exist
   if (legendApiData.games === 0) return false // The player hasn't used this legend
 
   const day = Math.floor(Date.now() / 1000 / 60 / 60 / 24)
