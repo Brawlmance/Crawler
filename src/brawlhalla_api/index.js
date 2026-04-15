@@ -48,10 +48,15 @@ function retry(queueElm, error) {
   queue.unshift(queueElm)
 }
 
+
+const options = {
+    headers: { "User-Agent": "Brawlmance Crawler/1.0" }
+};
+
 function httpsget(url) {
   return new Promise((resolve, reject) => {
     https
-      .get(url, resp => {
+      .get(url, options, resp => {
         let data = ''
         resp.on('data', chunk => {
           data += chunk
