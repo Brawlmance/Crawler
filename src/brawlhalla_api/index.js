@@ -22,9 +22,11 @@ setInterval(async () => {
   const queueElm = queue.shift()
   var response
   try {
-    response = utf8decodeRecursive(
-      JSON.parse(await httpsget(`${brawlhallaApiUrl}/${queueElm.url}?api_key=${config.brawlhalla_API_key}`))
-    )
+	let rawResponse = await httpsget(`${brawlhallaApiUrl}/${queueElm.url}?api_key=${config.brawlhalla_API_key}`)
+	if (rawResponse.startsWith('<')) {
+		throw new Error('Invalid JSON in response: ' + rawResponse)
+	}
+	response = utf8decodeRecursive(JSON.parse(rawResponse))
     if (response.error) queueElm.reject(response.error)
   } catch (error) {
     retry(queueElm, error)
