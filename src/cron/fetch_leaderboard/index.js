@@ -57,7 +57,7 @@ async function cronFn() {
 
   const msElapsed = Date.now() - initialTs
   if (config.debug) console.log(`To Wait: ${msToWait / 1000}s / Elapsed: ${msElapsed / 1000}s`)
-  setTimeout(cronFn, msToWait - msElapsed)
+  setTimeout(cronFn, Math.max(0, msToWait - msElapsed))
 }
 
 module.exports = cronFn
